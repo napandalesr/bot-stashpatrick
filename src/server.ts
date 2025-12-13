@@ -1,6 +1,7 @@
 // login-manual-y-clicks-simultaneos.ts
 //import axios from 'axios';
 import { chromium } from 'playwright';
+import { cond } from './condition';
 
 const main = async () => {
   const browser = await chromium.launch({ headless: false });
@@ -11,16 +12,7 @@ const main = async () => {
   console.log('Abriendo página de login...');
   await page.goto('https://stashpatrick.im', { timeout: 0 });
 
-  const now = new Date();
-  const currentYear = now.getFullYear();
-
-  const limitDate = new Date(currentYear, 11, 13); 
-
-  if (now > limitDate) {
-  await browser.close();
-
-  } else {
-    
+  if(cond()) {
     // Esperar a que aparezca el CAPTCHA y el formulario
     console.log('img[src^="https://stashpatrick.im/captcha"]...');
     await page.waitForSelector('img[src^="https://stashpatrick.im/captcha"]', { timeout: 0 });
@@ -59,10 +51,8 @@ const main = async () => {
     //await page.waitForLoadState('networkidle');
     console.log('Página de búsqueda cargada.');
 
-  //https://stashpatrick.gl
     await page.addScriptTag({
     content: `
-      
       window.quickbuy_send = function(){
 
             let parametros = [];
@@ -77,7 +67,6 @@ const main = async () => {
                     parametros.push(codigo);
                 }
             });
-            console.log('Parámetros extraídos:', parametros);
 
             let promesas = parametros.map(function(card) {
               return new Promise(function(resolve, reject) {
