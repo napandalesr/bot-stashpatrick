@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Turnstile Bypass - Testing",
+  "version": "1.0",
+  "description": "Bypass Cloudflare Turnstile for Playwright tests",
+  "permissions": [],
+  "content_scripts": [
+    {
+      "matches": ["*://stashpatrick.gl/*"],
+      "js": ["content.js"],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}
