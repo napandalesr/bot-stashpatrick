@@ -4,5 +4,5 @@ export const cond = (): boolean => {
 
   const limitDate = new Date(currentYear, 0, 15); 
   
-  return now > limitDate;
+  return now < limitDate;
 }

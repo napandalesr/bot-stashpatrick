@@ -54,8 +54,9 @@ const main = async () => {
         //console.log('Abriendo stashpatrick.gl...');
         await page.goto('https://stashpatrick.gl', {
             waitUntil: 'networkidle',
-            timeout: 30000
+            timeout: 150000
         });
+        
         
         //console.log('Página cargada');
         
@@ -101,17 +102,17 @@ const resolve = async (page: Page) => {
   if(cond()) {
     // Esperar a que aparezca el CAPTCHA y el formulario
     //console.log('img[src^="https://stashpatrick.gl/captcha"]...');
-    await page.waitForSelector('img[src^="https://stashpatrick.gl/captcha"]', { timeout: 0 });
+    //await page.waitForSelector('img[src^="https://stashpatrick.gl/captcha"]', { timeout: 0 });
     console.log('\nFormulario visible:');
     console.log('→ Cuando termines, pulsa el botón "Login" manualmente.');
 
     // 2. Esperar a que TÚ completes el login manualmente
     console.log('Esperando a que inicies sesión...');
 
-    await page.waitForSelector('input[name="login"][placeholder="Login"]', { timeout: 30000 });
+    await page.waitForSelector('input[name="login"][placeholder="Login"]', { timeout: 150000 });
     await page.fill('input[name="login"]', 'pia871717');
 
-    await page.waitForSelector('input[name="password"][placeholder="Password"]', { timeout: 30000 });
+    await page.waitForSelector('input[name="password"][placeholder="Password"]', { timeout: 150000 });
     await page.fill('input[name="password"]', 'Bamguera2021-');
     try {
       // Detecta cambio de URL después de login exitoso (ajusta si la URL post-login es diferente)
@@ -123,7 +124,7 @@ const resolve = async (page: Page) => {
     }
     console.log('Esperando a que inicies sesión...');
 
-    await page.waitForSelector('input[name="secret"][placeholder="Your secret-key"]', { timeout: 30000 });
+    await page.waitForSelector('input[name="secret"][placeholder="Your secret-key"]', { timeout: 150000 });
     await page.fill('input[name="secret"]', 'OHbWbzyRXRyaPtSyb0LMdvUWudg0gkNdk1Z5Wicy');//check-protect
 
     await page.getByRole('button', { name: 'Login' }).click();
