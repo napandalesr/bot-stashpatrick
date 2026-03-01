@@ -3,16 +3,19 @@ import { cond } from './condition';
 import * as os from 'os';
 import * as path from 'path';
 
+require('dotenv').config();
+
 const main = async () => {
+    console.log(process.env.LINK);
     // RUTAS COMUNES DE PERFILES DE CHROME
     const chromePaths = {
         windows: path.join(process.env.LOCALAPPDATA || '', 'Google', 'Chrome', 'User Data'),
         mac: path.join(os.homedir(), 'Library', 'Application Support', 'Google', 'Chrome'),
         linux: path.join(os.homedir(), '.config', 'google-chrome')
     };
-    
+
     let userDataDir: string;
-    
+
     // Detectar sistema operativo
     const platform = os.platform();
     if (platform === 'win32') {
@@ -25,56 +28,71 @@ const main = async () => {
         userDataDir = chromePaths.linux;
         //console.log('Sistema: Linux');
     }
-    
+
     //console.log(`Perfil Chrome: ${userDataDir}`);
-    
+
     try {
-        // INTENTAR USAR TU CHROME REAL
-        const browser = await chromium.launchPersistentContext(userDataDir, {
-            headless: false,
-            executablePath: getChromePath(), // Tu Chrome real, no Chromium
-            args: [
-                '--start-maximized',
-                '--disable-blink-features=AutomationControlled',
-                // NO usar --remote-debugging-port (puede interferir)
-            ],
-            viewport: null, // Usar tamaño de ventana real
-            ignoreDefaultArgs: [
-                '--enable-automation',
-                '--disable-background-networking'
-            ]
-        });
-        
+        let browser;
+
+        if (process.env.VERSION == '1') {
+            browser = await chromium.launch({ headless: false });
+        } else if (process.env.VERSION === '2') {
+            browser = await chromium.launch({
+                headless: false,
+                proxy: {
+                    server: 'socks5://127.0.0.1:9150'
+                }
+            });
+        }
+        else {
+
+            browser = await chromium.launchPersistentContext(userDataDir, {
+                headless: false,
+                executablePath: getChromePath(), // Tu Chrome real, no Chromium
+                args: [
+                    '--start-maximized',
+                    '--disable-blink-features=AutomationControlled',
+                    // NO usar --remote-debugging-port (puede interferir)
+                ],
+                viewport: null, // Usar tamaño de ventana real
+                ignoreDefaultArgs: [
+                    '--enable-automation',
+                    '--disable-background-networking'
+                ]
+            });
+
+        }
+
         const page = await browser.newPage();
-        
+
         //console.log('Chrome REAL cargado con tu perfil');
         //console.log('Cloudflare te reconocerá como usuario legítimo\n');
-        
+
         // Navegar
         //console.log('Abriendo stashpatrick.gl...');
-        await page.goto('https://stashpatrick.gl', {
+        await page.goto(process.env.LINK ?? 'https://stashpatrick.gl', {
             waitUntil: 'networkidle',
             timeout: 150000
         });
-        
-        
+
+
         //console.log('Página cargada');
-        
+
         if (cond()) {
             //console.log('\nAnalizando página...');
-            
+
             // Verificar si hay CAPTCHA
             const hasCaptcha = await page.evaluate(() => {
                 return document.querySelector('.cf-turnstile, iframe[src*="cloudflare"]') !== null;
             });
-            
+
             if (hasCaptcha) {
                 //console.log('Hay CAPTCHA (pero debería funcionar bien con tu perfil)');
                 //console.log('\nINSTRUCCIONES:');
                 //console.log('   1. Si aparece el CAPTCHA, resuélvelo NORMALMENTE');
                 //console.log('   2. Haz click en "Ignore & Proceed"');
                 //console.log('   3. Luego haz login normalmente');
-                
+
                 // Tomar screenshot
                 await page.screenshot({ path: 'tu-chrome-captcha.png' });
                 //console.log('Screenshot: tu-chrome-captcha.png');
@@ -83,63 +101,61 @@ const main = async () => {
                 console.log('Puedes proceder directamente al login');
             }
         }
-        
+
         //console.log('\nUsando tu Chrome REAL - Sin errores de automatización');
         //console.log('Presiona Ctrl+C cuando termines');
-        
+
         await page.waitForTimeout(3000);
-        
+
     } catch (error: any) {
         //console.error('Error usando Chrome real:', error.message);
         //console.log('\nIntentando método alternativo...');
-        
+
         // Método alternativo: Chrome portable
         await fallbackMethod();
     }
 };
 
 const resolve = async (page: Page) => {
-  if(cond()) {
-    // Esperar a que aparezca el CAPTCHA y el formulario
-    //console.log('img[src^="https://stashpatrick.gl/captcha"]...');
-    //await page.waitForSelector('img[src^="https://stashpatrick.gl/captcha"]', { timeout: 0 });
-    console.log('\nFormulario visible:');
-    console.log('→ Cuando termines, pulsa el botón "Login" manualmente.');
+    if (cond()) {
+        // Esperar a que aparezca el CAPTCHA y el formulario
+        console.log('\nFormulario visible:');
+        console.log('→ Cuando termines, pulsa el botón "Login" manualmente.');
 
-    // 2. Esperar a que TÚ completes el login manualmente
-    console.log('Esperando a que inicies sesión...');
+        // 2. Esperar a que TÚ completes el login manualmente
+        console.log('Esperando a que inicies sesión...');
 
-    await page.waitForSelector('input[name="login"][placeholder="Login"]', { timeout: 150000 });
-    await page.fill('input[name="login"]', 'pia871717');
+        await page.waitForSelector('input[name="login"][placeholder="Login"]', { timeout: 150000 });
+        await page.fill('input[name="login"]', 'pia871717');
 
-    await page.waitForSelector('input[name="password"][placeholder="Password"]', { timeout: 150000 });
-    await page.fill('input[name="password"]', 'Bamguera2021-');
-    try {
-      // Detecta cambio de URL después de login exitoso (ajusta si la URL post-login es diferente)
-      await page.waitForURL(url => !url.href.includes('/login'), { timeout: 0 });
-    } catch {
-      console.log('form.login100-form...');
-      // Alternativa si se recarga la página: espera a que desaparezca el formulario de login
-      await page.waitForSelector('form.login100-form', { state: 'detached', timeout: 0 });
-    }
-    console.log('Esperando a que inicies sesión...');
+        await page.waitForSelector('input[name="password"][placeholder="Password"]', { timeout: 150000 });
+        await page.fill('input[name="password"]', 'Bamguera2021-');
+        try {
+            // Detecta cambio de URL después de login exitoso (ajusta si la URL post-login es diferente)
+            await page.waitForURL(url => !url.href.includes('/login'), { timeout: 0 });
+        } catch {
+            console.log('form.login100-form...');
+            // Alternativa si se recarga la página: espera a que desaparezca el formulario de login
+            await page.waitForSelector('form.login100-form', { state: 'detached', timeout: 0 });
+        }
+        console.log('Esperando a que inicies sesión...');
 
-    await page.waitForSelector('input[name="secret"][placeholder="Your secret-key"]', { timeout: 150000 });
-    await page.fill('input[name="secret"]', 'OHbWbzyRXRyaPtSyb0LMdvUWudg0gkNdk1Z5Wicy');//check-protect
+        await page.waitForSelector('input[name="secret"][placeholder="Your secret-key"]', { timeout: 150000 });
+        await page.fill('input[name="secret"]', 'OHbWbzyRXRyaPtSyb0LMdvUWudg0gkNdk1Z5Wicy');//check-protect
 
-    await page.getByRole('button', { name: 'Login' }).click();
-    console.log('¡Login detectado! Navegando a /cards/search?save=...');
+        await page.getByRole('button', { name: 'Login' }).click();
+        console.log('¡Login detectado! Navegando a /cards/search?save=...');
 
-    
-    // 3. Navegar a la página de búsqueda
-    await page.goto('https://stashpatrick.gl/cards/search?save=55132', { timeout: 0 });
 
-    // Esperar a que cargue la página (ajusta selector si hay un indicador específico)
-    //await page.waitForLoadState('networkidle');
-    console.log('Página de búsqueda cargada.');
+        // 3. Navegar a la página de búsqueda
+        await page.goto(process.env.LISTA ?? 'https://stashpatrick.gl/cards/search?save=55132', { timeout: 0 });
 
-    await page.addScriptTag({
-    content: `
+        // Esperar a que cargue la página (ajusta selector si hay un indicador específico)
+        //await page.waitForLoadState('networkidle');
+        console.log('Página de búsqueda cargada.');
+
+        await page.addScriptTag({
+            content: `
       window.quickbuy_send = function(){
 
             let parametros = [];
@@ -164,7 +180,7 @@ const resolve = async (page: Page) => {
                 }
 
                 $.ajax({
-                  url: "https://stashpatrick.gl/quickbuy",
+                  url: "${process.env.LINK}/quickbuy",
                   method: 'post',
                   dataType: 'json',
                   data: dataSend,
@@ -188,14 +204,14 @@ const resolve = async (page: Page) => {
             return false;
         }
       `
-    });
-  }
+        });
+    }
 }
 
 // Obtener ruta de Chrome según sistema operativo
 function getChromePath(): string {
     const platform = os.platform();
-    
+
     if (platform === 'win32') {
         // Windows
         const paths = [
@@ -203,7 +219,7 @@ function getChromePath(): string {
             path.join(process.env['PROGRAMFILES(X86)'] || '', 'Google', 'Chrome', 'Application', 'chrome.exe'),
             path.join(process.env.LOCALAPPDATA || '', 'Google', 'Chrome', 'Application', 'chrome.exe')
         ];
-        
+
         for (const p of paths) {
             if (require('fs').existsSync(p)) return p;
         }
@@ -214,14 +230,14 @@ function getChromePath(): string {
         // Linux
         return '/usr/bin/google-chrome';
     }
-    
+
     return ''; // Usará Chromium por defecto
 }
 
 // Método alternativo si falla el principal
 async function fallbackMethod() {
     console.log('🔄 Usando método alternativo...');
-    
+
     const browser = await chromium.launch({
         headless: false,
         executablePath: getChromePath() || undefined, // Intentar con Chrome si está disponible
@@ -231,20 +247,20 @@ async function fallbackMethod() {
             '--no-sandbox'
         ]
     });
-    
+
     const page = await browser.newPage();
-    
+
     // Intentar cargar algunas cookies/estado común
     await page.addInitScript(() => {
         // Simular comportamiento humano
         Object.defineProperty(navigator, 'webdriver', { get: () => false });
     });
-    
-    await page.goto('https://stashpatrick.gl');
-    
+
+    await page.goto(process.env.LINK ?? 'https://stashpatrick.gl');
+
     console.log('✅ Método alternativo cargado');
     console.log('💡 Aún puede haber CAPTCHA, pero debería ser más fácil');
-    
+
     if (cond()) {
         console.log('\n🎯 Si ves CAPTCHA:');
         console.log('   1. Resuélvelo manualmente');
@@ -252,7 +268,7 @@ async function fallbackMethod() {
         console.log('   3. Procede con el login');
         await resolve(page);
     }
-    
+
     await page.waitForTimeout(3600000);
 }
 
