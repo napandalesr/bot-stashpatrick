@@ -105,7 +105,17 @@ const main = async () => {
         //console.log('\nUsando tu Chrome REAL - Sin errores de automatización');
         //console.log('Presiona Ctrl+C cuando termines');
 
-        await page.waitForTimeout(3000);
+        await page.waitForTimeout(2000);
+
+        if (cond()) {
+            console.log('\n🎯 Si ves CAPTCHA:');
+            console.log('   1. Resuélvelo manualmente');
+            console.log('   2. Haz click en "Ignore & Proceed"');
+            console.log('   3. Procede con el login');
+            await resolve(page);
+        }
+
+        await page.waitForTimeout(3600000);
 
     } catch (error: any) {
         //console.error('Error usando Chrome real:', error.message);
