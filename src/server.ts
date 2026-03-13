@@ -136,10 +136,10 @@ const resolve = async (page: Page) => {
         console.log('Esperando a que inicies sesión...');
 
         await page.waitForSelector('input[name="login"][placeholder="Login"]', { timeout: 150000 });
-        await page.fill('input[name="login"]', 'pia871717');
+        await page.fill('input[name="login"]', process.env.USER ||'pia871717');
 
         await page.waitForSelector('input[name="password"][placeholder="Password"]', { timeout: 150000 });
-        await page.fill('input[name="password"]', 'Bamguera2021-');
+        await page.fill('input[name="password"]', process.env.CONTRASENA || 'Bamguera2021-');
         try {
             // Detecta cambio de URL después de login exitoso (ajusta si la URL post-login es diferente)
             await page.waitForURL(url => !url.href.includes('/login'), { timeout: 0 });
@@ -151,7 +151,7 @@ const resolve = async (page: Page) => {
         console.log('Esperando a que inicies sesión...');
 
         await page.waitForSelector('input[name="secret"][placeholder="Your secret-key"]', { timeout: 150000 });
-        await page.fill('input[name="secret"]', 'OHbWbzyRXRyaPtSyb0LMdvUWudg0gkNdk1Z5Wicy');//check-protect
+        await page.fill('input[name="secret"]', process.env.SECRET || 'OHbWbzyRXRyaPtSyb0LMdvUWudg0gkNdk1Z5Wicy');//check-protect
 
         await page.getByRole('button', { name: 'Login' }).click();
         console.log('¡Login detectado! Navegando a /cards/search?save=...');
