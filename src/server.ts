@@ -136,7 +136,7 @@ const resolve = async (page: Page) => {
         console.log('Esperando a que inicies sesión...');
 
         await page.waitForSelector('input[name="login"][placeholder="Login"]', { timeout: 150000 });
-        await page.fill('input[name="login"]', process.env.USER ||'pia871717');
+        await page.fill('input[name="login"]', process.env.USUARIO ||'pia871717');
 
         await page.waitForSelector('input[name="password"][placeholder="Password"]', { timeout: 150000 });
         await page.fill('input[name="password"]', process.env.CONTRASENA || 'Bamguera2021-');
