@@ -43,6 +43,8 @@ const main = async () => {
                     server: 'socks5://127.0.0.1:9150'
                 }
             });
+        } else if (process.env.VERSION === '3') {
+            browser = await chromium.connectOverCDP('http://localhost:9222');
         }
         else {
 
