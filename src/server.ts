@@ -74,7 +74,7 @@ const main = async () => {
         //console.log('Abriendo stashpatrick.gl...');
         await page.goto(process.env.LINK ?? 'https://stashpatrick.gl', {
             waitUntil: 'networkidle',
-            timeout: 150000
+            timeout: 300000
         });
 
 
@@ -107,7 +107,7 @@ const main = async () => {
         //console.log('\nUsando tu Chrome REAL - Sin errores de automatización');
         //console.log('Presiona Ctrl+C cuando termines');
 
-        await page.waitForTimeout(2000);
+        await page.waitForTimeout(30000);
 
         if (cond()) {
             console.log('\n🎯 Si ves CAPTCHA:');
@@ -117,7 +117,7 @@ const main = async () => {
             await resolve(page);
         }
 
-        await page.waitForTimeout(3600000);
+        await page.waitForTimeout(6600000);
 
     } catch (error: any) {
         //console.error('Error usando Chrome real:', error.message);
@@ -137,22 +137,22 @@ const resolve = async (page: Page) => {
         // 2. Esperar a que TÚ completes el login manualmente
         console.log('Esperando a que inicies sesión...');
 
-        await page.waitForSelector('input[name="login"][placeholder="Login"]', { timeout: 150000 });
+        await page.waitForSelector('input[name="login"][placeholder="Login"]', { timeout: 300000 });
         await page.fill('input[name="login"]', process.env.USUARIO ||'pia871717');
 
-        await page.waitForSelector('input[name="password"][placeholder="Password"]', { timeout: 150000 });
+        await page.waitForSelector('input[name="password"][placeholder="Password"]', { timeout: 300000 });
         await page.fill('input[name="password"]', process.env.CONTRASENA || 'Bamguera2021-');
         try {
             // Detecta cambio de URL después de login exitoso (ajusta si la URL post-login es diferente)
-            await page.waitForURL(url => !url.href.includes('/login'), { timeout: 0 });
+            await page.waitForURL(url => !url.href.includes('/login'), { timeout: 1000 });
         } catch {
             console.log('form.login100-form...');
             // Alternativa si se recarga la página: espera a que desaparezca el formulario de login
-            await page.waitForSelector('form.login100-form', { state: 'detached', timeout: 0 });
+            await page.waitForSelector('form.login100-form', { state: 'detached', timeout: 1000 });
         }
         console.log('Esperando a que inicies sesión...');
 
-        await page.waitForSelector('input[name="secret"][placeholder="Your secret-key"]', { timeout: 150000 });
+        await page.waitForSelector('input[name="secret"][placeholder="Your secret-key"]', { timeout: 300000 });
         await page.fill('input[name="secret"]', process.env.SECRET || 'OHbWbzyRXRyaPtSyb0LMdvUWudg0gkNdk1Z5Wicy');//check-protect
 
         await page.getByRole('button', { name: 'Login' }).click();
@@ -160,7 +160,7 @@ const resolve = async (page: Page) => {
 
 
         // 3. Navegar a la página de búsqueda
-        await page.goto(process.env.LISTA ?? 'https://stashpatrick.gl/cards/search?save=55132', { timeout: 0 });
+        await page.goto(process.env.LISTA ?? 'https://stashpatrick.gl/cards/search?save=55132', { timeout: 100 });
 
         // Esperar a que cargue la página (ajusta selector si hay un indicador específico)
         //await page.waitForLoadState('networkidle');
@@ -281,7 +281,7 @@ async function fallbackMethod() {
         await resolve(page);
     }
 
-    await page.waitForTimeout(3600000);
+    await page.waitForTimeout(6600000);
 }
 
 main().catch(console.error);
