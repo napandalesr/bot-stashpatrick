@@ -155,7 +155,11 @@ const resolve = async (page: Page) => {
         await page.waitForSelector('input[name="secret"][placeholder="Your secret-key"]', { timeout: 300000 });
         await page.fill('input[name="secret"]', process.env.SECRET || 'OHbWbzyRXRyaPtSyb0LMdvUWudg0gkNdk1Z5Wicy');//check-protect
 
-        await page.getByRole('button', { name: 'Login' }).click();
+        await page.locator('button[type="submit"]').click({ noWaitAfter: true });
+
+        await page.waitForURL('**/news**', { timeout: 300000 });
+
+        //await page.getByRole('button', { name: 'Login' }).click();
         console.log('¡Login detectado! Navegando a /cards/search?save=...');
 
 
